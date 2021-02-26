@@ -15,3 +15,6 @@ test:
 
 run:
 	venv/bin/python main.py
+
+all: install test run
+
