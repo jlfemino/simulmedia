@@ -1,8 +1,10 @@
-import pytest
 from typing import List
+
+import pytest
+
 from main import app
+from simulmedia.ad_config import AdConfig
 from simulmedia.api.ad_api import default_ad_configs
-from simulmedia.ad_config import AdConfig, AdConfigs
 
 
 class TestApi:

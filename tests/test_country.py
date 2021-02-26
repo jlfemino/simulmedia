@@ -1,4 +1,5 @@
 import pytest
+
 from simulmedia.country import Country
 from simulmedia.exceptions import InvalidCountryException
 

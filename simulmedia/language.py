@@ -1,5 +1,7 @@
-from simulmedia.exceptions import InvalidLanguageException
 import pycountry
+
+from simulmedia.exceptions import InvalidLanguageException
+
 
 # TODO: Internationalize this by including the ability to fetch internationalized name
 
@@ -44,7 +46,7 @@ class Language:
             raise InvalidLanguageException(f'Length invalid. Use ISO 639-1 or ISO 639-2/T format. iso639={iso639}')
 
         if pyc_lang is None:
-            # TODO: Use a more comprehensive library... or consider using a cache
+            # TODO: Use a more comprehensive library... and consider using a cache
             for lang in pycountry.languages:
                 if hasattr(lang, 'bibliographic') and lang.bibliographic == iso639:
                     pyc_lang = lang
