@@ -1,7 +1,8 @@
 .DS_Store
 .coverage
 .idea
-htmlcov/
 .pytest_cache
+__pycache__
+htmlcov/
 venv
 
