@@ -1,6 +1,8 @@
 from simulmedia.exceptions import InvalidLanguageException
 import pycountry
 
+# TODO: Internationalize this by including the ability to fetch internationalized name
+
 
 class Language:
     name: str = None
@@ -31,6 +33,9 @@ class Language:
 
     @classmethod
     def get(cls, iso639: str):
+        if iso639 is None:
+            raise InvalidLanguageException(f'Language not specified. Use ISO 639-1 or ISO 639-2/T code.')
+
         if len(iso639) == 2:
             pyc_lang = pycountry.languages.get(alpha_2=iso639)
         elif len(iso639) == 3:
@@ -46,7 +51,7 @@ class Language:
                     break
 
         if pyc_lang is None:
-            raise InvalidLanguageException(f'Language not found for ISO 639 code={iso639}')
+            raise InvalidLanguageException(f'Language not found for ISO 639 code={iso639}.')
 
         return Language(name=pyc_lang.name, alpha_2=pyc_lang.alpha_2, alpha_3=pyc_lang.alpha_3)
 

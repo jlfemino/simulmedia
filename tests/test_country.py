@@ -51,6 +51,13 @@ class TestCountry:
         assert country1.equals(country2)
 
     # ================================================================================
+    # __repr__()
+    # ================================================================================
+    def test__repr__happy_path(self):
+        country = Country(name='United States', alpha_2='US', alpha_3='USA')
+        assert country.__repr__() == 'US'
+
+    # ================================================================================
     # equals()
     # ================================================================================
     def test__equals__name_differs(self):
@@ -85,4 +92,36 @@ class TestCountry:
         assert country2 is not None
         assert country1.equals(country2)
 
+    # ================================================================================
+    # get()
+    # ================================================================================
+    def test__get__iso3166_none(self):
+        with pytest.raises(InvalidCountryException) as e:
+            Country.get(None)
+        assert 'Country not specified' in str(e)
 
+    def test__get__iso3166_blank(self):
+        with pytest.raises(InvalidCountryException) as e:
+            Country.get('')
+        assert 'Length invalid' in str(e)
+
+    def test__get__iso3166_too_short(self):
+        with pytest.raises(InvalidCountryException) as e:
+            Country.get('A')
+        assert 'Length invalid' in str(e)
+
+    def test__get__iso3166_too_long(self):
+        with pytest.raises(InvalidCountryException) as e:
+            Country.get('AAAA')
+        assert 'Length invalid' in str(e)
+
+    def test__get__iso3166_not_found(self):
+        with pytest.raises(InvalidCountryException) as e:
+            Country.get('XX')
+        assert 'Country not found' in str(e)
+
+    def test__get__iso3166_happy_path(self):
+        country = Country.get('EE')
+        assert country.alpha_2 == 'EE'
+        assert country.alpha_3 == 'EST'
+        assert country.name == 'Estonia'

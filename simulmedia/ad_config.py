@@ -13,10 +13,12 @@ _logger = logging.getLogger(__name__)
 
 
 class AdConfig:
+    fields: List[str] = ['id', 'video_url', 'country', 'lang', 'start_hour', 'end_hour']
+
     id: str = None
     video_url: str = None
     country: Country = None
-    language: Language = None
+    lang: Language = None
     start_hour: int = None
     end_hour: int = None
 
@@ -31,7 +33,7 @@ class AdConfig:
             self.country = Country.get(kwargs['country'])
 
         if 'lang' in kwargs:
-            self.language = Language.get(kwargs['lang'])
+            self.lang = Language.get(kwargs['lang'])
 
         if 'start_hour' in kwargs:
             self.start_hour = int(kwargs['start_hour'])
@@ -40,7 +42,7 @@ class AdConfig:
             self.end_hour = int(kwargs['end_hour'])
 
         # Ensure that all required attributes are set
-        for field in ['id', 'video_url', 'country', 'language', 'start_hour', 'end_hour']:
+        for field in self.fields:
             if getattr(self, field) is None:
                 raise InvalidAdConfigException(f'{field} not specified')
 
@@ -49,7 +51,7 @@ class AdConfig:
             "id": self.id,
             "video_url": self.video_url,
             "country": str(self.country),
-            "lang": str(self.language),
+            "lang": str(self.lang),
             "start_hour": self.start_hour,
             "end_hour": self.end_hour
         })
@@ -64,6 +66,12 @@ class AdConfigs:
     def __init__(self, ad_configs: List[AdConfig]):
         self.ad_configs = ad_configs
 
+    def set_ads(self, ad_configs: List[AdConfig]):
+        """
+        For unit testing (or for dynamic ad updates?)
+        """
+        self.ad_configs = ad_configs
+
     def get_ad(self, country: Country, language: Language, hour: int = None) -> Optional[AdConfig]:
         if hour is None:
             hour = datetime.utcnow().hour
@@ -71,7 +79,7 @@ class AdConfigs:
         ads: List[AdConfig] = []
         for ad_config in self.ad_configs:
             if ad_config.country.equals(country) \
-                    and ad_config.language.equals(language) \
+                    and ad_config.lang.equals(language) \
                     and ad_config.start_hour <= hour < ad_config.end_hour:
                 ads.append(ad_config)
 

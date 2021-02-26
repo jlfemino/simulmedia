@@ -51,6 +51,13 @@ class TestLanguage:
         assert language1.equals(language2)
 
     # ================================================================================
+    # __repr__()
+    # ================================================================================
+    def test__repr__happy_path(self):
+        language = Language(name='English', alpha_2='en', alpha_3='eng')
+        assert language.__repr__() == 'en'
+
+    # ================================================================================
     # equals()
     # ================================================================================
     def test__equals__name_differs(self):
@@ -85,5 +92,36 @@ class TestLanguage:
         assert language2 is not None
         assert language1.equals(language2)
 
+    # ================================================================================
+    # get()
+    # ================================================================================
+    def test__get__iso639_none(self):
+        with pytest.raises(InvalidLanguageException) as e:
+            Language.get(None)
+        assert 'Language not specified' in str(e)
 
+    def test__get__iso639_blank(self):
+        with pytest.raises(InvalidLanguageException) as e:
+            Language.get('')
+        assert 'Length invalid' in str(e)
 
+    def test__get__iso639_too_short(self):
+        with pytest.raises(InvalidLanguageException) as e:
+            Language.get('a')
+        assert 'Length invalid' in str(e)
+
+    def test__get__iso639_too_long(self):
+        with pytest.raises(InvalidLanguageException) as e:
+            Language.get('aaaa')
+        assert 'Length invalid' in str(e)
+
+    def test__get__iso639_not_found(self):
+        with pytest.raises(InvalidLanguageException) as e:
+            Language.get('xx')
+        assert 'Language not found' in str(e)
+
+    def test__get__iso639_happy_path(self):
+        language = Language.get('zh')
+        assert language.alpha_2 == 'zh'
+        assert language.alpha_3 == 'zho'
+        assert language.name == 'Chinese'

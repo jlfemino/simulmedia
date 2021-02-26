@@ -9,6 +9,7 @@ from simulmedia.config import config
 from simulmedia.ad_config import AdConfig, AdConfigs
 from simulmedia.country import Country
 from simulmedia.language import Language
+from simulmedia.exceptions import InvalidInputException
 
 _logger = logging.getLogger(__name__)
 
@@ -84,21 +85,22 @@ def get_ad_url(country: str,
         404:
             description: No ad was found for the specified country/language/hour
     """
-    if hour is None:
-        hour = datetime.utcnow().hour
-    else:
-        hour = int(hour)
-
-    target_country: Country = Country.get(country)
-    target_language: Language = Language.get(language)
-
-    ad_config = ad_configs.get_ad(target_country, target_language, hour)
-
     response = make_response()
     response.headers.update(default_headers)
-    if ad_config:
-        response.status_code = 200
-        response.data = ad_config.video_url
-    else:
-        response.status_code = 404
+    try:
+        # Process input args
+        c: Country = Country.get(country)
+        l: Language = Language.get(language)
+        h: int = int(hour)
+        ad_config = ad_configs.get_ad(c, l, h)
+
+        if ad_config:
+            response.status_code = 200
+            response.data = ad_config.video_url
+        else:
+            response.status_code = 404
+    except InvalidInputException as e:
+        response.status_code = 400
+        response.data = str(e)
+
     return response

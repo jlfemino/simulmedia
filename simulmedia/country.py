@@ -1,6 +1,8 @@
 from simulmedia.exceptions import InvalidCountryException
 import pycountry
 
+# TODO: Internationalize this by including the ability to fetch internationalized name/official_name
+
 
 class Country:
     name: str = None
@@ -35,16 +37,19 @@ class Country:
         return self.alpha_2
 
     @classmethod
-    def get(cls, iso639: str):
-        if len(iso639) == 2:
-            pyc_country = pycountry.countries.get(alpha_2=iso639)
-        elif len(iso639) == 3:
-            pyc_country = pycountry.countries.get(alpha_3=iso639)
+    def get(cls, iso3166: str):
+        if iso3166 is None:
+            raise InvalidCountryException(f'Country not specified. Use ISO 3166-1 Alpha-1 or Alpha-2 code.')
+
+        if len(iso3166) == 2:
+            pyc_country = pycountry.countries.get(alpha_2=iso3166)
+        elif len(iso3166) == 3:
+            pyc_country = pycountry.countries.get(alpha_3=iso3166)
         else:
-            raise InvalidCountryException(f'Length invalid. Use ISO 639-1 or ISO 639-2/T format. iso639={iso639}')
+            raise InvalidCountryException(f'Length invalid. Use ISO 3166-1 Alpha-1 or Alpha-2 format. iso3166={iso3166}')
 
         if pyc_country is None:
-            raise InvalidCountryException(f'Country not found for ISO 639 code={iso639}')
+            raise InvalidCountryException(f'Country not found for ISO 3166 code={iso3166}.')
 
         return Country(
             name=pyc_country.name,
