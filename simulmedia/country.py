@@ -7,6 +7,9 @@ from simulmedia.exceptions import InvalidCountryException
 
 
 class Country:
+    """
+    A wrapper on top of pycountry, to provide the ability to get Country objects from ISO 3166-1 codes.
+    """
     name: str = None
     official_name: str = None
     alpha_2: str = None

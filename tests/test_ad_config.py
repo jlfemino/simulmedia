@@ -1,10 +1,11 @@
 import json
 
 import pytest
+import requests_mock
 
 from simulmedia.ad_config import AdConfig, AdConfigs
 from simulmedia.country import Country
-from simulmedia.exceptions import InvalidAdConfigException
+from simulmedia.exceptions import AdSourceServiceException, InvalidAdConfigException
 from simulmedia.language import Language
 
 
@@ -12,6 +13,34 @@ class TestAdConfig:
     # ================================================================================
     # __init__()
     # ================================================================================
+    def test__init__invalid_start_hour(self):
+        config: dict = {
+            "id": "111111",
+            "video_url": "https://www.111111.com",
+            "country": "US",
+            "lang": "eng",
+            "start_hour": -1,
+            "end_hour": 23
+        }
+
+        with pytest.raises(InvalidAdConfigException) as e:
+            AdConfig(**config)
+        assert 'Invalid start_hour' in str(e)
+
+    def test__init__invalid_end_hour(self):
+        config: dict = {
+            "id": "111111",
+            "video_url": "https://www.111111.com",
+            "country": "US",
+            "lang": "eng",
+            "start_hour": 0,
+            "end_hour": 25
+        }
+
+        with pytest.raises(InvalidAdConfigException) as e:
+            AdConfig(**config)
+        assert 'Invalid end_hour' in str(e)
+
     def test__init__missing_fields(self):
         default_config: dict = {
             "id": "111111",
@@ -82,9 +111,9 @@ class TestAdConfigs:
                 "id": "111111",
                 "video_url": "https://www.111111.com",
                 "country": "us",
-                "lang": "eng",
+                "lang": "en",
                 "start_hour": 0,
-                "end_hour": 23
+                "end_hour": 24
             })
         ])
 
@@ -151,3 +180,40 @@ class TestAdConfigs:
         assert ad_configs.get_ad(country=us, language=en, hour=21).video_url == 'https://www.111111.com'
         assert ad_configs.get_ad(country=us, language=en, hour=22).video_url == 'https://www.111111.com'
         assert ad_configs.get_ad(country=us, language=en, hour=23) is None
+
+    # ================================================================================
+    # fetch_ad_configs()
+    # ================================================================================
+    def test__fetch_ad_configs__invalid_ad_config(self):
+        test_url: str = 'http://www.dummy.com/ads'
+        test_ads: dict = {
+            "ads": [
+                {
+                    "id": "111111"  # Invalid ad config: missing all sorts of fields
+                },
+                {
+                    "id": "222222",
+                    "video_url": "https://www.222222.com",
+                    "country": "US",
+                    "lang": "en",
+                    "start_hour": 12,
+                    "end_hour": 24
+                }
+            ]
+        }
+
+        with requests_mock.Mocker() as m:
+            m.get(test_url, text=json.dumps(test_ads))
+            ad_configs: AdConfigs = AdConfigs.fetch_ad_configs(test_url)
+            assert len(ad_configs.ad_configs) == 1
+            assert ad_configs.ad_configs[0].id == "222222"
+
+    def test__fetch_ad_configs__rest_error(self):
+        test_url: str = 'http://www.dummy.com/ads'
+
+        with requests_mock.Mocker() as m:
+            m.get(test_url, status_code=404)
+
+            with pytest.raises(AdSourceServiceException) as e:
+                ad_configs: AdConfigs = AdConfigs.fetch_ad_configs(test_url)
+            assert 'Error response from AdConfigs fetch' in str(e)

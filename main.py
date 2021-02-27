@@ -1,6 +1,6 @@
 from flask import Flask
 
-from simulmedia.api.ad_api import ad_api
+from simulmedia.api.ad import ad_api
 from simulmedia.api.swagger import swagger_api, swagger_ui_api
 
 # Flask app

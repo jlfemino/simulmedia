@@ -6,17 +6,17 @@ from typing import Optional, Union
 from flask import Blueprint, make_response
 
 from simulmedia.ad_config import AdConfig, AdConfigs
-from simulmedia.config import config
+from simulmedia.config import config_parser
 from simulmedia.country import Country
 from simulmedia.exceptions import InvalidInputException
 from simulmedia.language import Language
 
 _logger = logging.getLogger(__name__)
 
-default_headers = json.loads(config.get('DEFAULT_HEADERS'))
+default_headers = json.loads(config_parser['DEFAULT']['DEFAULT_HEADERS'])
 
 # Load ad configs  # TODO: Could have listener service where config can be pushed to
-url = config.get('AD_CONFIGS_URL', 'Error: AD_CONFIGS_URL not found')
+url = config_parser['DEFAULT']['AD_CONFIGS_URL']
 default_ad_configs: Optional[AdConfigs] = AdConfigs.fetch_ad_configs(url)
 
 

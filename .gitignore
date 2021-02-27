@@ -1,3 +1,4 @@
+*.swp
 .DS_Store
 .coverage
 .idea
@@ -5,4 +6,3 @@
 __pycache__
 htmlcov/
 venv
-

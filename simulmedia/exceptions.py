@@ -1,4 +1,8 @@
 
+
+# ================================================================================
+# InvalidInputException
+# ================================================================================
 class InvalidInputException(Exception):
     def __init__(self, message: str):
         super(InvalidInputException, self).__init__(message)
@@ -17,3 +21,17 @@ class InvalidLanguageException(InvalidInputException):
 class InvalidCountryException(InvalidInputException):
     def __init__(self, message: str):
         super(InvalidCountryException, self).__init__(message)
+
+
+# ================================================================================
+# ExternalServiceException
+# ================================================================================
+class ExternalServiceException(Exception):
+    def __init__(self, message: str):
+        super(ExternalServiceException, self).__init__(message)
+
+
+class AdSourceServiceException(ExternalServiceException):
+    def __init__(self, message: str):
+        super(AdSourceServiceException, self).__init__(message)
+

@@ -6,13 +6,17 @@ from typing import List, Optional
 import requests
 
 from simulmedia.country import Country
-from simulmedia.exceptions import InvalidAdConfigException
+from simulmedia.exceptions import AdSourceServiceException, InvalidAdConfigException
 from simulmedia.language import Language
 
 _logger = logging.getLogger(__name__)
 
 
 class AdConfig:
+    """
+    This class formalizes the format of the data found in the demo URL:
+    https://gist.githubusercontent.com/victorhurdugaci/22a682eb508e65d97bd5b9152f564ab3/raw/dbf27ef217dba9bbd753de26cdabf8a91bdf1550/sm_ads.json
+    """
     fields: List[str] = ['id', 'video_url', 'country', 'lang', 'start_hour', 'end_hour']
 
     id: str = None
@@ -28,6 +32,7 @@ class AdConfig:
 
         if 'video_url' in kwargs:
             self.video_url = kwargs['video_url']
+            # TODO: URL validation
 
         if 'country' in kwargs:
             self.country = Country.get(kwargs['country'])
@@ -37,9 +42,13 @@ class AdConfig:
 
         if 'start_hour' in kwargs:
             self.start_hour = int(kwargs['start_hour'])
+            if self.start_hour < 0 or self.start_hour > 24:
+                raise InvalidAdConfigException(f'Invalid start_hour. Must be [0-24). value={self.start_hour}')
 
         if 'end_hour' in kwargs:
             self.end_hour = int(kwargs['end_hour'])
+            if self.end_hour < 0 or self.end_hour > 24:
+                raise InvalidAdConfigException(f'Invalid end_hour. Must be [0-24). value={self.end_hour}')
 
         # Ensure that all required attributes are set
         for field in self.fields:
@@ -91,26 +100,24 @@ class AdConfigs:
 
     @classmethod
     def fetch_ad_configs(cls, url: str) -> 'AdConfigs':
-        # TODO: Consider dumping config into a DB so querying can be easier/faster than brute force searches
-        try:
-            response = requests.get(url)
-            if 199 < response.status_code < 300:
-                ads = response.json()['ads']
+        # TODO: Put config into a DB so querying can be easier/faster than brute force searches
+        # TODO: Add retry logic
+        response = requests.get(url)
+        if 199 < response.status_code < 300:
+            ads = response.json()['ads']
 
-                # ad_configs: List[AdConfig] = [AdConfig(**ad) for ad in ads]
-                configs: List[AdConfig] = []
-                for ad in ads:
-                    try:
-                        config = AdConfig(**ad)
-                        configs.append(config)
-                    except Exception as e:
-                        _logger.error(f'Error processing ad={ad}', e)
+            # ad_configs: List[AdConfig] = [AdConfig(**ad) for ad in ads]
+            configs: List[AdConfig] = []
+            for ad in ads:
+                try:
+                    config = AdConfig(**ad)
+                    configs.append(config)
+                except Exception as e:
+                    _logger.error(f'Error processing ad={ad}. Skipping.', exc_info=e)
 
-                ad_configs = AdConfigs(ad_configs=configs)
-                return ad_configs
-            else:
-                _logger.error(f'Error response from AdConfigs fetch: url={url}, '
-                              f'status_code={response.status_code}, text={response.text}')
-        except Exception as e:
-            # Should think about adding some re-try logic
-            _logger.error(f'Error fetching AdConfigs: url={url}:', e)
+            ad_configs = AdConfigs(ad_configs=configs)
+            return ad_configs
+        else:
+            raise AdSourceServiceException(
+                f'Error response from AdConfigs fetch: url={url}, '
+                f'status_code={response.status_code}, text={response.text}')

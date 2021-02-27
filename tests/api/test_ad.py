@@ -4,18 +4,18 @@ import pytest
 
 from main import app
 from simulmedia.ad_config import AdConfig
-from simulmedia.api.ad_api import default_ad_configs
+from simulmedia.api.ad import default_ad_configs
 
 
 class TestApi:
-    # ================================================================================
-    # Flask functional testing
-    # ================================================================================
     @pytest.fixture
     def client(self):
         with app.test_client() as client:
             yield client
 
+    # ================================================================================
+    # Ads API
+    # ================================================================================
     def test__get_ad_url__not_found(self):
         # Save original configs
         original_configs: List[AdConfig] = default_ad_configs.ad_configs

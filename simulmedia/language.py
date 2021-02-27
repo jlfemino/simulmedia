@@ -7,6 +7,9 @@ from simulmedia.exceptions import InvalidLanguageException
 
 
 class Language:
+    """
+    A wrapper on top of pycountry, to provide the ability to get Language objects from ISO 639-1 & 639-2/T codes.
+    """
     name: str = None
     alpha_2: str = None
     alpha_3: str = None
