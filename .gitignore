@@ -5,4 +5,5 @@
 .pytest_cache
 __pycache__
 htmlcov/
+sqlite3*.db
 venv

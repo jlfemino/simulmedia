@@ -1,6 +1,19 @@
 
 
 # ================================================================================
+# ConfigException
+# ================================================================================
+class ConfigException(Exception):
+    def __init__(self, message: str):
+        super(ConfigException, self).__init__(message)
+
+
+class DBConfigException(ConfigException):
+    def __init__(self, message: str):
+        super(DBConfigException, self).__init__(message)
+
+
+# ================================================================================
 # InvalidInputException
 # ================================================================================
 class InvalidInputException(Exception):

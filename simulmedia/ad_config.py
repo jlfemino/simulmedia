@@ -42,18 +42,25 @@ class AdConfig:
 
         if 'start_hour' in kwargs:
             self.start_hour = int(kwargs['start_hour'])
-            if self.start_hour < 0 or self.start_hour > 24:
-                raise InvalidAdConfigException(f'Invalid start_hour. Must be [0-24). value={self.start_hour}')
 
         if 'end_hour' in kwargs:
             self.end_hour = int(kwargs['end_hour'])
-            if self.end_hour < 0 or self.end_hour > 24:
-                raise InvalidAdConfigException(f'Invalid end_hour. Must be [0-24). value={self.end_hour}')
 
         # Ensure that all required attributes are set
         for field in self.fields:
             if getattr(self, field) is None:
                 raise InvalidAdConfigException(f'{field} not specified')
+
+        # Perform attribute validation
+        if self.start_hour < 0 or self.start_hour > 23:
+            raise InvalidAdConfigException(f'Invalid start_hour. Must be [0-24). value={self.start_hour}')
+
+        if self.end_hour < 1 or self.end_hour > 24:
+            raise InvalidAdConfigException(f'Invalid end_hour. Must be [0-24). value={self.end_hour}')
+
+        if self.start_hour >= self.end_hour:
+            raise InvalidAdConfigException('start_hour must less than end_hour. '
+                                           'start_hour={self.start_hour}, end_hour={self.end_hour}')
 
     def to_json(self):
         return json.dumps({

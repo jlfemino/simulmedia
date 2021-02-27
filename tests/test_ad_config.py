@@ -13,6 +13,24 @@ class TestAdConfig:
     # ================================================================================
     # __init__()
     # ================================================================================
+    def test__init__missing_fields(self):
+        default_config: dict = {
+            "id": "111111",
+            "video_url": "https://www.111111.com",
+            "country": "US",
+            "lang": "eng",
+            "start_hour": 1,
+            "end_hour": 23
+        }
+
+        for field in AdConfig.fields:
+            config = default_config.copy()
+            config.pop(field)
+
+            with pytest.raises(InvalidAdConfigException) as e:
+                AdConfig(**config)
+            assert f'{field} not specified' in str(e)
+
     def test__init__invalid_start_hour(self):
         config: dict = {
             "id": "111111",
@@ -41,23 +59,19 @@ class TestAdConfig:
             AdConfig(**config)
         assert 'Invalid end_hour' in str(e)
 
-    def test__init__missing_fields(self):
-        default_config: dict = {
+    def test__init__invalid_start_end_hour(self):
+        config: dict = {
             "id": "111111",
             "video_url": "https://www.111111.com",
             "country": "US",
             "lang": "eng",
-            "start_hour": 1,
-            "end_hour": 23
+            "start_hour": 5,
+            "end_hour": 4
         }
 
-        for field in AdConfig.fields:
-            config = default_config.copy()
-            config.pop(field)
-
-            with pytest.raises(InvalidAdConfigException) as e:
-                AdConfig(**config)
-            assert f'{field} not specified' in str(e)
+        with pytest.raises(InvalidAdConfigException) as e:
+            AdConfig(**config)
+        assert 'start_hour must less than end_hour' in str(e)
 
     # ================================================================================
     # to_json()
