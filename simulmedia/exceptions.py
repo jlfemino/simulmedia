@@ -1,5 +1,10 @@
 
 
+class DBException(Exception):
+    def __init__(self, message: str):
+        super(DBException, self).__init__(message)
+
+
 # ================================================================================
 # ConfigException
 # ================================================================================
@@ -34,6 +39,11 @@ class InvalidLanguageException(InvalidInputException):
 class InvalidCountryException(InvalidInputException):
     def __init__(self, message: str):
         super(InvalidCountryException, self).__init__(message)
+
+
+class InvalidUserException(InvalidInputException):
+    def __init__(self, message: str):
+        super(InvalidUserException, self).__init__(message)
 
 
 # ================================================================================

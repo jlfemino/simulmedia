@@ -1,29 +1,15 @@
-import os
 import sqlite3
-from pathlib import Path
+from tempfile import TemporaryDirectory
 
 import pytest
-from tempfile import TemporaryDirectory, TemporaryFile
 
-from simulmedia.config import config_parser
 from simulmedia.database import apply_db_migrations
 from simulmedia.exceptions import DBConfigException
-
-BASE_DIR: str = str(Path(__file__).parent.parent)
-DB_FILE_PATH: str = f"{BASE_DIR}/{config_parser['DB']['SQLITE3_UNIT_TEST_FILE']}"
-DB_CONNECTION_URL: str = f"sqlite:///{DB_FILE_PATH}"
+from tests.base_test import BaseTest, DB_FILE_PATH
 
 
-@pytest.fixture
-def init_db():
-    if os.path.exists(DB_FILE_PATH):
-        os.remove(DB_FILE_PATH)
-
-    apply_db_migrations(db_connection_url=DB_CONNECTION_URL)
-    yield
-
-
-class TestDatabase:
+@pytest.mark.usefixtures('init_db')
+class TestDatabase(BaseTest):
 
     # ================================================================================
     # apply_db_migrations()

@@ -8,7 +8,8 @@ from simulmedia.config import config_parser
 _logger = logging.getLogger(__name__)
 BASE_DIR: str = str(Path(__file__).parent.parent)
 MIGRATIONS_DIR: str = f'{BASE_DIR}/db_migrations'
-DB_CONNECTION_URL: str = f"sqlite:///{BASE_DIR}/{config_parser['DB']['SQLITE3_FILE']}"
+DB_FILE_PATH: str = f"{BASE_DIR}/{config_parser['DB']['SQLITE3_FILE']}"
+DB_CONNECTION_URL: str = f"sqlite:///{DB_FILE_PATH}"
 
 
 def apply_db_migrations(db_connection_url: str = DB_CONNECTION_URL, migrations_dir: str = MIGRATIONS_DIR):
