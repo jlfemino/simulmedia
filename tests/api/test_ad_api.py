@@ -2,7 +2,6 @@ import pytest
 
 from simulmedia.api.ad_api import get_ad_url
 from tests.base_test import BaseTest
-from simulmedia.dao.ad_dao import AdDao
 
 # TODO: Refactor unit tests to initialize DB in test.
 # TODO: Use a library method to compare URLs for equivalency (not str == str).
@@ -54,7 +53,6 @@ class TestAdApiFunctional(BaseTest):
         assert 'Language not found' in str(response.data)
 
     def test__get_ad_url_short__happy_path(self, test_client):
-        ads = AdDao.get_instance().get_all()
         response = test_client.get(f'http://localhost:5000/ad/{user_id}/RO/ro')
         assert response.status_code == 200
         assert response.data == b'http://www.111111.ro/'
