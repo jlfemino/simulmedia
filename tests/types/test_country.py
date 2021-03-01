@@ -1,7 +1,7 @@
 import pytest
 
-from simulmedia.country import Country
-from simulmedia.exceptions import InvalidCountryException
+from simulmedia.types.country import Country
+from simulmedia.types.exceptions import InvalidCountryException
 
 
 class TestCountry:

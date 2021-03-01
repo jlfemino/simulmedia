@@ -1,6 +1,6 @@
 import pycountry
 
-from simulmedia.exceptions import InvalidCountryException
+from simulmedia.types.exceptions import InvalidCountryException
 
 
 # TODO: Internationalize this by including the ability to fetch internationalized name/official_name

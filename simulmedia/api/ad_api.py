@@ -5,33 +5,33 @@ from typing import Optional, Union
 
 from flask import Blueprint, make_response
 
-from simulmedia.ad_config import AdConfig, AdConfigs
-from simulmedia.config import config_parser
-from simulmedia.country import Country
-from simulmedia.exceptions import InvalidInputException
-from simulmedia.language import Language
+from simulmedia.dao.user_dao import UserDao
+from simulmedia.services.ads_fetcher import AdsFetcher
+from simulmedia.services.config import config_parser
+from simulmedia.types.ad import Ad
+from simulmedia.types.country import Country
+from simulmedia.types.exceptions import InvalidInputException
+from simulmedia.types.language import Language
+from simulmedia.types.user import User
 
 _logger = logging.getLogger(__name__)
 
 default_headers = json.loads(config_parser['DEFAULT']['DEFAULT_HEADERS'])
 
-# Load ad configs  # TODO: Could have listener service where config can be pushed to
-url = config_parser['DEFAULT']['AD_CONFIGS_URL']
-default_ad_configs: Optional[AdConfigs] = AdConfigs.fetch_ad_configs(url)
+ad_api_blueprint = Blueprint('ad_api', __name__)
 
 
-ad_api = Blueprint('swagger_api', __name__)
-
-
-# ====================================================================================================
-# API
-# ====================================================================================================
-@ad_api.route('/ad/<country>/<language>')
-def get_ad_url_short(country: str, language: str) -> Optional[AdConfig]:
+@ad_api_blueprint.route('/ad/<user_id>/<country>/<language>')
+def get_ad_url_short(user_id: str, country: str, language: str) -> Optional[Ad]:
     """
     Get video ad URL based on country and language.
     ---
     parameters:
+        - name: user_id
+          in: path
+          type: string
+          required: true
+          description: ID of User. Non-negotiable.
         - name: country
           in: path
           type: string
@@ -48,20 +48,25 @@ def get_ad_url_short(country: str, language: str) -> Optional[AdConfig]:
         200:
             description: An ad video was found, and returned in response
         404:
-            description: No ad was found for the specified country/language/hour
+            description: No ad was found for the specified user/country/language
     """
-    return get_ad_url(country=country, language=language, hour=datetime.utcnow().hour)
+    return get_ad_url(user_id=user_id, country=country, language=language, hour=datetime.utcnow().hour)
 
 
-@ad_api.route('/ad/<country>/<language>/<hour>')
-def get_ad_url(country: str,
+@ad_api_blueprint.route('/ad/<user_id>/<country>/<language>/<hour>')
+def get_ad_url(user_id: str,
+               country: str,
                language: str,
-               hour: Union[str, int] = None,
-               ad_configs: AdConfigs = default_ad_configs) -> Optional[AdConfig]:
+               hour: Union[str, int] = None) -> Optional[Ad]:
     """
     Get video ad URL based on country, language, and hour.
     ---
     parameters:
+        - name: user_id
+          in: path
+          type: string
+          required: true
+          description: ID of User. Non-negotiable.
         - name: country
           in: path
           type: string
@@ -83,24 +88,31 @@ def get_ad_url(country: str,
         200:
             description: An ad video was found, and returned in response
         404:
-            description: No ad was found for the specified country/language/hour
+            description: No ad was found for the specified user/country/language/hour
     """
     response = make_response()
     response.headers.update(default_headers)
     try:
         # Process input args
+        u: Optional[User] = UserDao.get_instance().get_by_id(user_id)
+        if u is None:
+            raise InvalidInputException(f'User not found for user_id={user_id}')
+
         c: Country = Country.get(country)
         l: Language = Language.get(language)
         h: int = int(hour)
-        ad_config = ad_configs.get_ad(c, l, h)
+        ad = AdsFetcher.get_instance().determine_ad_for_user(u, c, l, h)
 
-        if ad_config:
+        if ad:
             response.status_code = 200
-            response.data = ad_config.video_url
+            response.data = ad.video_url
         else:
             response.status_code = 404
     except InvalidInputException as e:
         response.status_code = 400
+        response.data = str(e)
+    except Exception as e:
+        response.status_code = 500
         response.data = str(e)
 
     return response

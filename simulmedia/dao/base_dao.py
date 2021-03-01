@@ -1,5 +1,7 @@
 import sqlite3
 
+# TODO: Add support for connection pooling
+
 
 class BaseDao:
     db_file_path: str = None

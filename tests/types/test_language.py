@@ -1,7 +1,7 @@
 import pytest
 
-from simulmedia.exceptions import InvalidLanguageException
-from simulmedia.language import Language
+from simulmedia.types.exceptions import InvalidLanguageException
+from simulmedia.types.language import Language
 
 
 class TestLanguage:

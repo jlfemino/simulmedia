@@ -5,16 +5,18 @@ install:
 
 clean:
 	rm -rf .coverage htmlcov .pytest_cache
+	find tests -type d -name .pytest_cache -exec rm -rf "{}" \;
+	find tests -type d -name __pycache__ -exec rm -rf "{}" \;
 
 cleanall: clean
 	rm -rf venv
 
 # Open "htmlcov/index.html" in web browser to view coverage results
 test:
-	venv/bin/pytest --cov=simulmedia --cov-report=html tests
+	APP_ENV='ENV_TEST' venv/bin/pytest --cov=simulmedia --cov-report=html tests
 
 run:
-	venv/bin/python main.py
+	APP_ENV='ENV_DEV' venv/bin/python main.py
 
 all: install test run
 

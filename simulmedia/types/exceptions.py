@@ -1,8 +1,16 @@
 
 
+# ================================================================================
+# ConfigException
+# ================================================================================
 class DBException(Exception):
     def __init__(self, message: str):
         super(DBException, self).__init__(message)
+
+
+class DBIntegrityException(DBException):
+    def __init__(self, message: str):
+        super(DBIntegrityException, self).__init__(message)
 
 
 # ================================================================================
@@ -26,9 +34,9 @@ class InvalidInputException(Exception):
         super(InvalidInputException, self).__init__(message)
 
 
-class InvalidAdConfigException(InvalidInputException):
+class InvalidAdException(InvalidInputException):
     def __init__(self, message: str):
-        super(InvalidAdConfigException, self).__init__(message)
+        super(InvalidAdException, self).__init__(message)
 
 
 class InvalidLanguageException(InvalidInputException):
