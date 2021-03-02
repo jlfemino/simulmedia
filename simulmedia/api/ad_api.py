@@ -16,10 +16,10 @@ from simulmedia.types.language import Language
 from simulmedia.types.user import User
 
 _logger = logging.getLogger(__name__)
-
 default_headers = json.loads(config_parser['DEFAULT']['DEFAULT_HEADERS'])
-
 ad_api_blueprint = Blueprint('ad_api', __name__)
+
+# TODO: Take the time to return response schema.
 
 
 @ad_api_blueprint.route('/ads')
@@ -175,7 +175,7 @@ def get_ad_url(user_id: str,
 
         if ad:
             response.status_code = 200
-            response.data = ad.video_url
+            response.data = json.dumps({"id": ad.id, "video_url": ad.video_url}, indent=4)
         else:
             response.status_code = 404
     except InvalidInputException as e:
