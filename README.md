@@ -1,11 +1,18 @@
-# Lies!
+# NOTES:
 According to `https://gist.github.com/victorhurdugaci/1a817055af6c6fc966d33c0d91408c77`:
  
 * Language codes listed as ISO 639-2 format... but the actual data is all ISO 639-1 except one:
   * `fre` which is probably ISO 639-2/B
 * Country codes are listed as ISO 639-1 format... but that's a language spec. Country codes should probably have been listed as ISO 3166-1 format.
-* Ad id = "104438d9" starts at hour 14, and ends at hour 2. Suspicious, if you ask me.
+* I did not obey the letter of the assignment for `end_hour`:
+    * >  2 = the ad is available until 1:59:59AM
+    * Depending on the meaning of "until"... there might have been a one-second gap between the 1:59:59AM and 2:00:00AM
+
+Also:
+* Ad id = "104438d9" starts at hour 14, and ends at hour 2. Suspicious, if you ask me. This ad gets ignored.
 * While we're at it, based on the definition of 'end_hour', I don't think any ads will be served up from 11:00pm to Midnight UTC. (More of a missed opportunity, than an error.)
+
+
 
 ## Running:
 ```
@@ -18,17 +25,19 @@ Point browser to:
 * `simulmedia/htmlcov/index.html` for test coverage
 
 
-
 ## TODO Items:
 ### Basic
 * API:
     * Take the time to return response schema in Swagger docs.
     * Add i18n support for Swagger docs and URL params
+    * Add auth
 * DAO:
     * Swap out SQLite for something more robust.
     * Add support for connection pooling.
     * Add support for transactional boundaries.
 * Services:
+    * Create permissions structure to go with service auth
+    * Create login service for auth
     * Create an Ads listener service for Ad server polling (and/or pushing Ads to)
 * Types:
     * Ads: Add support for proper URL validation
