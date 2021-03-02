@@ -7,8 +7,44 @@ According to https://gist.github.com/victorhurdugaci/1a817055af6c6fc966d33c0d914
 * Ad id = "104438d9" starts at hour 14, and ends at hour 2. Suspicious, if you ask me.
 * While we're at it, based on the definition of 'end_hour', I don't think any ads will be served up from 11:00pm to Midnight UTC. (More of a missed opportunity, than an error.)
 
+## Running:
+```
+git clone https://github.com/jlfemino/simulmedia.git
+cd simulmedia
+make all
+```
+Point browser to:
+* `http://localhost:5000/api_docs` for Swagger UI
+* `simulmedia/htmlcov/index.html` for test coverage
+
+
 
 ## TODO Items:
+### Basic
+* API:
+    * Take the time to return response schema in Swagger docs.
+    * Add i18n support for Swagger docs and URL params
+* DAO:
+    * Swap out SQLite for something more robust.
+    * Add support for connection pooling.
+    * Add support for transactional boundaries.
+* Services:
+    * Create an Ads listener service for Ad server polling (and/or pushing Ads to)
+* Types:
+    * Ads: Add support for proper URL validation
+    * Country/Language:
+        * Add i18n support
+        * Use more comprehensive ISO 639/3166 support
+    * General:
+        * Add utils to ensure:
+            * All datetimes are serialized as ISO 8601 Zulu
+            * All input datetimes are properly converted to UTC, if not already
+* Unit tests:
+    * Remove test data from DB migrations, embed in test files
+    * Use util for URL comparison (not string equality)
+    * Parallelize unit tests
+
+### Aspirational
 * Create separate services:
   * Login/authentication/authorization
   * UIs for Performance monitoring, system configuration, user management (or even better, integrate into corporate solutions)
@@ -22,16 +58,4 @@ According to https://gist.github.com/victorhurdugaci/1a817055af6c6fc966d33c0d914
 * For scalability:
   * Create a separate database layer (perhaps with caching layer between it and services)
   * Put services into containers (e.g. Docker in Kubernetes)
-  * Place load-balancer on front of service APIs
-* Add support for internationalization?
-  * i18n for country/language URL params, maybe
-
-## Running:
-```
-git clone https://github.com/jlfemino/simulmedia.git
-cd simulmedia
-make all
-```
-Point browser to:
-* `http://localhost:5000/api_docs` for Swagger UI
-* `simulmedia/htmlcov/index.html` for test coverage
+  * Consider caching/load-balancing
