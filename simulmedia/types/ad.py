@@ -64,14 +64,14 @@ class Ad:
                                      'start_hour={self.start_hour}, end_hour={self.end_hour}')
 
     def to_json(self):
-        return json.dumps({
+        return {
             "id": self.id,
             "video_url": self.video_url,
             "country": str(self.country),
             "lang": str(self.lang),
             "start_hour": self.start_hour,
             "end_hour": self.end_hour
-        })
+        }
 
     def __repr__(self):
-        return self.to_json()
+        return json.dumps(self.to_json(), indent=4)

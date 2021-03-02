@@ -59,6 +59,23 @@ class AdDao(BaseDao):
             if connection is not None:
                 connection.close()
 
+    def get_all_by_region(self, country: Country, language: Language) -> List[Ad]:
+        connection = None
+        try:
+            sql: str = f"SELECT created, updated, ad_id, video_url, country, lang, start_hour, end_hour FROM 'ad' "\
+                       f"WHERE country = '{country.alpha_2}' AND lang = '{language.alpha_2}';"
+
+            connection = self.get_connection()
+            cursor = connection.cursor()
+            cursor.execute(sql)
+            rows = cursor.fetchall()
+            return [self._row_to_ad(row) for row in rows]
+        except Exception as e:
+            raise DBException(f'Error reading Ads from DB.') from e
+        finally:
+            if connection is not None:
+                connection.close()
+
     def get_by_id(self, ad_id: str) -> Optional[Ad]:
         if not ad_id:
             raise InvalidInputException(f'ad_id not specified')

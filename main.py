@@ -19,12 +19,13 @@ app.register_blueprint(ad_api_blueprint)
 # Main
 # ====================================================================================================
 if __name__ == '__main__':
-    if not os.environ.get('APP_ENV', None):
+    app_env: str = os.environ.get('APP_ENV', None)
+    if not app_env:
         raise ConfigException('APP_ENV not defined!')
 
     apply_db_migrations()
 
-    url = config_parser['DEFAULT']['AD_CONFIGS_URL']
+    url = config_parser[app_env]['AD_CONFIGS_URL']
     AdsFetcher.get_instance().fetch_ads(url=url)
 
     app.run()

@@ -12,8 +12,8 @@ from simulmedia.services.database import apply_db_migrations
 
 
 class BaseTest:
-    BASE_DIR: str = str(Path(__file__).parent.parent)
-    DB_FILE_PATH: str = f"{BASE_DIR}/{config_parser['ENV_TEST']['SQLITE3_FILE']}"
+    PROJECT_BASE_DIR: str = str(Path(__file__).parent.parent)
+    DB_FILE_PATH: str = f"{PROJECT_BASE_DIR}/{config_parser['ENV_TEST']['SQLITE3_FILE']}"
     DB_CONNECTION_URL: str = f"sqlite:///{DB_FILE_PATH}"
 
     # ================================================================================
@@ -21,11 +21,11 @@ class BaseTest:
     # ================================================================================
     @pytest.fixture
     def init_db(self):
-        # Delete existing DB
+        # Delete existing DB file
         if os.path.exists(self.DB_FILE_PATH):
             os.remove(self.DB_FILE_PATH)
 
-        # Initialize new DB
+        # Initialize fresh DB
         apply_db_migrations(db_connection_url=self.DB_CONNECTION_URL)
         yield
 

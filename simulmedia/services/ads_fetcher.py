@@ -1,29 +1,32 @@
 import logging
+import os
 import random
 from datetime import datetime, timedelta
-from typing import List, Optional
+from typing import Callable, List, Optional
 
 import requests
 
 from simulmedia.dao.ad_dao import AdDao
 from simulmedia.dao.user_ad_view_dao import UserAdViewDao
+from simulmedia.services.config import config_parser
 from simulmedia.types.ad import Ad
+from simulmedia.types.ad_chooser import AdChooser
 from simulmedia.types.country import Country
-from simulmedia.types.exceptions import AdSourceServiceException, DBIntegrityException
+from simulmedia.types.exceptions import AdSourceServiceException, DBIntegrityException, ConfigException
 from simulmedia.types.language import Language
 from simulmedia.types.user import User
 from simulmedia.types.user_ad_view import UserAdView
 
 _logger = logging.getLogger(__name__)
 
-
-# TODO: Create listener service to which Ads can be pushed... and/or polling.
+# TODO: Create listener service to which Ads can be pushed (and/or polled from).
 
 
 class AdsFetcher:
     __instance = None
     __ad_dao: AdDao = None
     __user_ad_view_dao: UserAdViewDao = None
+    __ad_chooser_function: Callable = None
 
     @staticmethod
     def get_instance():
@@ -39,11 +42,39 @@ class AdsFetcher:
             AdsFetcher.__user_ad_view_dao = UserAdViewDao.get_instance()
             AdsFetcher.__instance = self
 
+            # Select AdChooser function
+            try:
+                ad_chooser_str: str = config_parser[os.environ.get('APP_ENV', None)]['AD_CHOOSER']
+                ad_chooser: Optional[AdChooser] = AdChooser.lookup(ad_chooser_str)
+                if not ad_chooser:
+                    _logger.warning(f'AD_CHOOSER not properly specified in config! value={ad_chooser_str}')
+
+                # Determine which function will determine the ad
+                AdsFetcher.__ad_chooser_function = AdsFetcher.determine_ad__once_per_24_hours
+                if ad_chooser == AdChooser.ONCE_PER_24_HOURS:
+                    pass
+                else:
+                    _logger.error(f'Unsupported AdChooser = {ad_chooser.value}. '
+                                  f'Using {AdsFetcher.__ad_chooser_function}')
+            except Exception as e:
+                _logger.exception(f'Exception determining AdChooser.', exc_info=e)
+
     @staticmethod
-    def determine_ad_for_user(user: User,
-                              country: Country,
-                              language: Language,
-                              hour: int = None) -> Optional[Ad]:
+    def get_ad(user: User,
+               country: Country,
+               language: Language,
+               hour: int = None) -> Optional[Ad]:
+        if hour is None:
+            hour = datetime.utcnow().hour
+
+        return AdsFetcher.__ad_chooser_function(user, country, language, hour)
+
+    @staticmethod
+    def determine_ad__once_per_24_hours(
+            user: User,
+            country: Country,
+            language: Language,
+            hour: int) -> Optional[Ad]:
         if hour is None:
             hour = datetime.utcnow().hour
 
@@ -53,19 +84,19 @@ class AdsFetcher:
         # Get all Ads viewed by this user in the past 24 hours
         user_ad_views: List[UserAdView] = AdsFetcher.__user_ad_view_dao.get_all_by_user_id(
             user_id=user.user_id, since=datetime.utcnow() - timedelta(hours=24))
+        viewed_ad_ids: List[str] = [user_ad_view.ad_id for user_ad_view in user_ad_views]
 
         # Determine which Ad (if any) to show the user
         if len(ads) == 0:
             return None
 
-        # TODO: Replace random Ad with a layered approach:
-        #  - Show the first ad in the list that hasn't been seen
-        #  - If all have been seen, figure something else out (e.g. No ad, or the ad least recently seen)
-        random_index: int = random.randint(0, len(ads)-1)
-        return ads[random_index]
+        # Return first current ad not viewed in past 24 hours
+        for ad in ads:
+            if ad.id not in viewed_ad_ids:
+                return ad
 
     @staticmethod
-    def fetch_ads(self, url: str):
+    def fetch_ads(url: str):
         """
         Fetch Ads from the provided URL, and save them to the current DB.
         """

@@ -9,20 +9,20 @@ According to https://gist.github.com/victorhurdugaci/1a817055af6c6fc966d33c0d914
 
 
 ## TODO Items:
-* Create separate services for:
+* Create separate services:
   * Login/authentication/authorization
-  * Ad service
-  * Performance monitoring, system configuration, user management
-  * Create CI/CD pipeline
+  * UIs for Performance monitoring, system configuration, user management (or even better, integrate into corporate solutions)
+  * Service interfaces to allow implementation swapping for extensibility as well as testing
+* Create CI/CD pipeline
+  * Setup (or integrate with) artifact repository (e.g. Nexus)
 * Auth(entication|orization) Probably something simple like JWTs:
+  * Add HTTPS support
   * Add permissions model with users & roles, with mappings for roles/operations
   * Add auth to Swagger UI
 * For scalability:
-  * Place load-balancer on front of service APIs
   * Create a separate database layer (perhaps with caching layer between it and services)
   * Put services into containers (e.g. Docker in Kubernetes)
-* Setup (or integrate with) artifact repository (e.g. Nexus)
-* Record performance metrics to somewhere (MetricsCore?)
+  * Place load-balancer on front of service APIs
 * Add support for internationalization?
   * i18n for country/language URL params, maybe
 
