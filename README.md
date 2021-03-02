@@ -1,8 +1,8 @@
 # Lies!
-According to https://gist.github.com/victorhurdugaci/1a817055af6c6fc966d33c0d91408c77...
+According to `https://gist.github.com/victorhurdugaci/1a817055af6c6fc966d33c0d91408c77`:
  
-* Language codes listed as ISO 639-1 format... but the actual data contains an error:
-  * `fre` which is ISO 639-2/B
+* Language codes listed as ISO 639-2 format... but the actual data is all ISO 639-1 except one:
+  * `fre` which is probably ISO 639-2/B
 * Country codes are listed as ISO 639-1 format... but that's a language spec. Country codes should probably have been listed as ISO 3166-1 format.
 * Ad id = "104438d9" starts at hour 14, and ends at hour 2. Suspicious, if you ask me.
 * While we're at it, based on the definition of 'end_hour', I don't think any ads will be served up from 11:00pm to Midnight UTC. (More of a missed opportunity, than an error.)
