@@ -21,7 +21,7 @@ cd simulmedia
 make all
 ```
 Point browser to:
-* `http://localhost:5000/api_docs` for Swagger UI
+* `http://localhost:5000/api/docs` for Swagger UI
 * `simulmedia/htmlcov/index.html` for test coverage
 
 
