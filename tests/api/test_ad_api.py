@@ -55,7 +55,7 @@ class TestAdApiFunctional(BaseTest):
     def test__get_ad_url_short__happy_path(self, test_client):
         response = test_client.get(f'http://localhost:5000/ad/{user_id}/RO/ro')
         assert response.status_code == 200
-        assert response.data == b'http://www.111111.ro/'
+        assert response.json['video_url'] == 'http://www.111111.ro/'
 
     # ================================================================================
     # get_ad_url
@@ -78,4 +78,4 @@ class TestAdApiFunctional(BaseTest):
     def test__get_ad_url__happy_path(self, test_client):
         response = test_client.get(f'http://localhost:5000/ad/{user_id}/RO/ro/0')
         assert response.status_code == 200
-        assert response.data == b'http://www.111111.ro/'
+        assert response.json['video_url'] == 'http://www.111111.ro/'

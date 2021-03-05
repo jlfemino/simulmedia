@@ -6,6 +6,8 @@ from simulmedia.types.ad import Ad
 from simulmedia.types.exceptions import InvalidAdException
 
 
+# TODO: JSON comparisons should be done by library... not str equality
+
 class TestAd:
     # ================================================================================
     # __init__()
@@ -83,7 +85,9 @@ class TestAd:
             "end_hour": 23
         }
 
-        ad_config_dict: dict = json.loads(Ad(**config).to_json())
+        ad: Ad = Ad(**config)
+        ad_json = ad.to_json()
+        ad_config_dict: dict = json.loads(json.dumps(ad_json))
         for field in Ad.required_fields:
             assert ad_config_dict[field] == config[field]
 
@@ -101,4 +105,4 @@ class TestAd:
         }
 
         ad_config = Ad(**config)
-        assert ad_config.to_json() == ad_config.__repr__()
+        assert json.dumps(ad_config.to_json(), indent=4) == ad_config.__repr__()

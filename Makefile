@@ -5,8 +5,8 @@ install:
 
 clean:
 	rm -rf .coverage htmlcov .pytest_cache
-	find tests -type d -name .pytest_cache -exec rm -rf "{}" \;
-	find tests -type d -name __pycache__ -exec rm -rf "{}" \;
+	find tests -type d -name .pytest_cache -exec rm -rf "{}" 2>/dev/null \;
+	find tests -type d -name __pycache__ -exec rm -rf "{}" 2>/dev/null \;
 
 cleanall: clean
 	rm -rf venv
