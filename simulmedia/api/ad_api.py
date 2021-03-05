@@ -7,6 +7,7 @@ from flask import Blueprint, make_response
 
 from simulmedia.dao.ad_dao import AdDao
 from simulmedia.dao.user_dao import UserDao
+from simulmedia.dao.user_ad_view_dao import UserAdViewDao
 from simulmedia.services.ads_fetcher import AdsFetcher
 from simulmedia.services.config import config_parser
 from simulmedia.types.ad import Ad
@@ -173,6 +174,7 @@ def get_ad_url(user_id: str,
 
         if ad:
             response.status_code = 200
+            UserAdViewDao.get_instance().create(u.user_id, ad.id)
             response.data = json.dumps({"id": ad.id, "video_url": ad.video_url}, indent=4)
         else:
             response.status_code = 404
